@@ -1,8 +1,17 @@
+import { auth } from "@/auth";
 import PostsGrid from "@/components/PostsGrid";
+import { prisma } from "@/db";
 import { CheckIcon, ChevronLeftIcon, CogIcon } from "lucide-react";
 import Link from "next/link";
 
 export default async function ProfilePage() {
+  const session = await auth();
+  const profile = await prisma.profile.findFirstOrThrow({
+    where: {
+      email: session?.user?.email as string,
+    },
+  });
+
   return (
     <main>
       <section className="flex items-center justify-between">
@@ -10,14 +19,14 @@ export default async function ProfilePage() {
           <ChevronLeftIcon />
         </button>
         <div className="font-bold flex items-center gap-2">
-          my_name_here
+          {profile.username}
           <div className="size-5 rounded-full bg-in-red inline-flex justify-center items-center text-white">
             <CheckIcon size={16} />
           </div>
         </div>
-        <button>
+        <Link href={"/settings"}>
           <CogIcon />
-        </button>
+        </Link>
       </section>
       <section className="mt-8 flex justify-center">
         <div className="size-48 p-2 rounded-full bg-gradient-to-tr from-in-orange to-in-red">
@@ -32,11 +41,11 @@ export default async function ProfilePage() {
         </div>
       </section>
       <section className="text-center mt-4">
-        <h1 className="text-xl font-bold">My name</h1>
-        <p className="text-gray-500 mt-1 mb-1">Business account</p>
+        <h1 className="text-xl font-bold">{profile.name}</h1>
+        <p className="text-gray-500 mt-1 mb-1">{profile.subtitle}</p>
         <p>
-          Entrepreneur, Husband, Father <br />
-          contact: my_email@gmail.com
+          {profile.bio} <br />
+          Contact: {profile.email}
         </p>
       </section>
       <section className="mt-4">
